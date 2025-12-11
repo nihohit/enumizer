@@ -3,7 +3,7 @@
 //! # Example
 //!
 //! ```
-//! use alias_option_macro::alias_either;
+//! use enumizer::alias_either;
 //!
 //! alias_either!(Choice, Primary, Secondary);
 //!
@@ -18,8 +18,8 @@
 //! # Generated Methods
 //!
 //! ```
-//! # use alias_option_macro::alias_either;
-//! # alias_either!(Choice, Primary, Secondary);
+//! use enumizer::alias_either;
+//! alias_either!(Choice, Primary, Secondary);
 //! let mut val: Choice<i32, String> = Choice::Primary(10);
 //!
 //! assert!(val.is_primary());

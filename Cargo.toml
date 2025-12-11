@@ -1,9 +1,7 @@
 [package]
-name = "alias-option-macro"
+name = "enumizer"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 paste = "1"
-
-[workspace]
