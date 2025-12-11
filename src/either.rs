@@ -33,7 +33,7 @@
 macro_rules! alias_either {
     ($type_name:ident, $left_variant:ident, $right_variant:ident) => {
         paste::paste! {
-		#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+		#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
 		pub enum $type_name<L, R> {
 			$left_variant(L),
 			$right_variant(R),

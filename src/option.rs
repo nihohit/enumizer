@@ -73,7 +73,7 @@
 macro_rules! alias_option {
     ($type_name:ident, $some_variant:ident, $none_variant:ident) => {
       paste::paste! {
-		#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+		#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
 		pub enum $type_name<T> {
 			$none_variant,
 			$some_variant(T),
