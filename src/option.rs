@@ -3,77 +3,77 @@
 //! # Example
 //!
 //! ```
-//! use alias_option_macro::alias_option;
+//! use enumizer::alias_option;
 //!
-//! alias_option!(Sampler, Leader, Receiver);
+//! alias_option!(Value, Found, Searching);
 //!
-//! let leader: Sampler<i32> = Sampler::Leader;
-//! let receiver = Sampler::Receiver(42);
+//! let searching: Value<i32> = Value::Searching;
+//! let found = Value::Found(42);
 //!
-//! assert!(leader.is_leader());
-//! assert!(!leader.is_receiver());
-//! assert!(receiver.is_receiver());
-//! assert_eq!(receiver.as_receiver(), Some(&42));
+//! assert!(searching.is_searching());
+//! assert!(!searching.is_found());
+//! assert!(found.is_found());
+//! assert_eq!(found.as_found(), Some(&42));
 //! ```
 //!
 //! # Generated Methods
 //!
 //! ```
-//! # use alias_option_macro::alias_option;
-//! # alias_option!(Sampler, Leader, Receiver);
-//! let mut val = Sampler::Receiver(10);
+//! use enumizer::alias_option;
+//! alias_option!(Value, Found, Searching);
+//! let mut val = Value::Found(10);
 //!
 //! // Check variants
-//! assert!(val.is_receiver());
+//! assert!(val.is_found());
 //!
 //! // Get references
-//! assert_eq!(val.as_receiver(), Some(&10));
-//! assert_eq!(val.as_receiver_mut(), Some(&mut 10));
+//! assert_eq!(val.as_found(), Some(&10));
+//! assert_eq!(val.as_found_mut(), Some(&mut 10));
 //!
 //! // Transform
 //! let doubled = val.map(|x| x * 2);
 //! assert_eq!(doubled.unwrap(), 20);
 //!
 //! // Unwrap variants
-//! assert_eq!(Sampler::Receiver(5).unwrap_or(0), 5);
-//! assert_eq!(Sampler::<i32>::Leader.unwrap_or(5), 5);
+//! assert_eq!(Value::Found(5).unwrap_or(0), 5);
+//! assert_eq!(Value::<i32>::Searching.unwrap_or(5), 5);
 //! ```
 //!
 //! # Conversions
 //!
 //! ```
-//! # use alias_option_macro::alias_option;
-//! # alias_option!(Sampler, Leader, Receiver);
-//! let from_some: Sampler<i32> = Some(42).into();
-//! let from_none: Sampler<i32> = None.into();
+//! use enumizer::alias_option;
+//! alias_option!(Value, Found, Searching);
+//! let from_some: Value<i32> = Some(42).into();
+//! let from_none: Value<i32> = None.into();
 //!
-//! assert_eq!(from_some, Sampler::Receiver(42));
-//! assert_eq!(from_none, Sampler::Leader);
+//! assert_eq!(from_some, Value::Found(42));
+//! assert_eq!(from_none, Value::Searching);
 //!
-//! let to_option: Option<i32> = Sampler::Receiver(42).into();
+//! let to_option: Option<i32> = Value::Found(42).into();
 //! assert_eq!(to_option, Some(42));
 //! ```
 //!
 //! # Conditional Checks
 //!
 //! ```
-//! # use alias_option_macro::alias_option;
-//! # alias_option!(Sampler, Leader, Receiver);
-//! let val = Sampler::Receiver(42);
-//! assert!(val.is_receiver_and(|&x| x > 40));
-//! assert!(!val.is_receiver_and(|&x| x < 40));
-//! assert!(!Sampler::<i32>::Leader.is_receiver_and(|&x| x > 40));
+//! use enumizer::alias_option;
+//! alias_option!(Value, Found, Searching);
+//! let val = Value::Found(42);
+//! assert!(val.is_found_and(|&x| x > 40));
+//! assert!(!val.is_found_and(|&x| x < 40));
+//! assert!(!Value::<i32>::Searching.is_found_and(|&x| x > 40));
 //!
-//! assert!(Sampler::<i32>::Leader.is_leader_or(|&x| x > 40));
-//! assert!(val.is_leader_or(|&x| x > 40));
-//! assert!(!val.is_leader_or(|&x| x < 40));
+//! assert!(Value::<i32>::Searching.is_searching_or(|&x| x > 40));
+//! assert!(val.is_searching_or(|&x| x > 40));
+//! assert!(!val.is_searching_or(|&x| x < 40));
 //! ```
 
 #[macro_export]
 macro_rules! alias_option {
-    ($type_name:ident, $none_variant:ident, $some_variant:ident) => {
+    ($type_name:ident, $some_variant:ident, $none_variant:ident) => {
       paste::paste! {
-		#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+		#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
 		pub enum $type_name<T> {
 			$none_variant,
 			$some_variant(T),
@@ -173,13 +173,13 @@ mod tests {
     #[test]
     fn size_equivalence() {
         use std::num::NonZeroU32;
-        alias_option!(Sampler, Leader, Receiver);
+        alias_option!(Value, Found, Searching);
         assert_eq!(
-            std::mem::size_of::<Sampler<i32>>(),
+            std::mem::size_of::<Value<i32>>(),
             std::mem::size_of::<Option<i32>>()
         );
         assert_eq!(
-            std::mem::size_of::<Sampler<NonZeroU32>>(),
+            std::mem::size_of::<Value<NonZeroU32>>(),
             std::mem::size_of::<Option<NonZeroU32>>()
         );
     }

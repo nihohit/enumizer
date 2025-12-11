@@ -3,7 +3,7 @@
 //! # Example
 //!
 //! ```
-//! use alias_option_macro::alias_result;
+//! use enumizer::alias_result;
 //!
 //! alias_result!(Response, Success, Failure);
 //!
@@ -18,8 +18,8 @@
 //! # Generated Methods
 //!
 //! ```
-//! # use alias_option_macro::alias_result;
-//! # alias_result!(Response, Success, Failure);
+//! use enumizer::alias_result;
+//! alias_result!(Response, Success, Failure);
 //! let mut val: Response<i32, String> = Response::Success(10);
 //!
 //! assert!(val.is_success());
@@ -33,8 +33,8 @@
 //! # Conversions
 //!
 //! ```
-//! # use alias_option_macro::alias_result;
-//! # alias_result!(Response, Success, Failure);
+//! use enumizer::alias_result;
+//! alias_result!(Response, Success, Failure);
 //! let from_ok: Response<i32, String> = Ok(42).into();
 //! let from_err: Response<i32, String> = Err("failed".to_string()).into();
 //!
@@ -48,7 +48,7 @@
 macro_rules! alias_result {
     ($type_name:ident, $ok_variant:ident, $err_variant:ident) => {
         paste::paste! {
-        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
         pub enum $type_name<T, E> {
             $ok_variant(T),
             $err_variant(E),
