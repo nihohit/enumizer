@@ -1,49 +1,49 @@
-//! Creates a Result-like enum with custom variant names.
-//!
-//! # Example
-//!
-//! ```
-//! use enumizer::alias_result;
-//!
-//! alias_result!(Response, Success, Failure);
-//!
-//! let success: Response<i32, String> = Response::Success(42);
-//! let error: Response<i32, String> = Response::Failure("failed".to_string());
-//!
-//! assert!(success.is_success());
-//! assert!(error.is_failure());
-//! assert_eq!(success.as_success(), Some(&42));
-//! ```
-//!
-//! # Generated Methods
-//!
-//! ```
-//! use enumizer::alias_result;
-//! alias_result!(Response, Success, Failure);
-//! let mut val: Response<i32, String> = Response::Success(10);
-//!
-//! assert!(val.is_success());
-//! assert_eq!(val.as_success(), Some(&10));
-//! assert_eq!(val.as_failure(), None);
-//!
-//! let doubled = val.map(|x| x * 2);
-//! assert_eq!(doubled.unwrap(), 20);
-//! ```
-//!
-//! # Conversions
-//!
-//! ```
-//! use enumizer::alias_result;
-//! alias_result!(Response, Success, Failure);
-//! let from_ok: Response<i32, String> = Ok(42).into();
-//! let from_err: Response<i32, String> = Err("failed".to_string()).into();
-//!
-//! assert_eq!(from_ok, Response::Success(42));
-//! assert!(from_err.is_failure());
-//!
-//! let to_result: Result<i32, String> = Response::Success(42).into();
-//! assert_eq!(to_result, Ok(42));
-//! ```
+/// Creates a Result-like enum with custom variant names.
+///
+/// # Example
+///
+/// ```
+/// use enumizer::alias_result;
+///
+/// alias_result!(Response, Success, Failure);
+///
+/// let success: Response<i32, String> = Response::Success(42);
+/// let error: Response<i32, String> = Response::Failure("failed".to_string());
+///
+/// assert!(success.is_success());
+/// assert!(error.is_failure());
+/// assert_eq!(success.as_success(), Some(&42));
+/// ```
+///
+/// # Generated Methods
+///
+/// ```
+/// use enumizer::alias_result;
+/// alias_result!(Response, Success, Failure);
+/// let mut val: Response<i32, String> = Response::Success(10);
+///
+/// assert!(val.is_success());
+/// assert_eq!(val.as_success(), Some(&10));
+/// assert_eq!(val.as_failure(), None);
+///
+/// let doubled = val.map(|x| x * 2);
+/// assert_eq!(doubled.unwrap(), 20);
+/// ```
+///
+/// # Conversions
+///
+/// ```
+/// use enumizer::alias_result;
+/// alias_result!(Response, Success, Failure);
+/// let from_ok: Response<i32, String> = Ok(42).into();
+/// let from_err: Response<i32, String> = Err("failed".to_string()).into();
+///
+/// assert_eq!(from_ok, Response::Success(42));
+/// assert!(from_err.is_failure());
+///
+/// let to_result: Result<i32, String> = Response::Success(42).into();
+/// assert_eq!(to_result, Ok(42));
+/// ```
 #[macro_export]
 macro_rules! alias_result {
     ($type_name:ident, $ok_variant:ident, $err_variant:ident) => {

@@ -1,74 +1,73 @@
-//! Creates an Option-like enum with custom variant names.
-//!
-//! # Example
-//!
-//! ```
-//! use enumizer::alias_option;
-//!
-//! alias_option!(Value, Found, Searching);
-//!
-//! let searching: Value<i32> = Value::Searching;
-//! let found = Value::Found(42);
-//!
-//! assert!(searching.is_searching());
-//! assert!(!searching.is_found());
-//! assert!(found.is_found());
-//! assert_eq!(found.as_found(), Some(&42));
-//! ```
-//!
-//! # Generated Methods
-//!
-//! ```
-//! use enumizer::alias_option;
-//! alias_option!(Value, Found, Searching);
-//! let mut val = Value::Found(10);
-//!
-//! // Check variants
-//! assert!(val.is_found());
-//!
-//! // Get references
-//! assert_eq!(val.as_found(), Some(&10));
-//! assert_eq!(val.as_found_mut(), Some(&mut 10));
-//!
-//! // Transform
-//! let doubled = val.map(|x| x * 2);
-//! assert_eq!(doubled.unwrap(), 20);
-//!
-//! // Unwrap variants
-//! assert_eq!(Value::Found(5).unwrap_or(0), 5);
-//! assert_eq!(Value::<i32>::Searching.unwrap_or(5), 5);
-//! ```
-//!
-//! # Conversions
-//!
-//! ```
-//! use enumizer::alias_option;
-//! alias_option!(Value, Found, Searching);
-//! let from_some: Value<i32> = Some(42).into();
-//! let from_none: Value<i32> = None.into();
-//!
-//! assert_eq!(from_some, Value::Found(42));
-//! assert_eq!(from_none, Value::Searching);
-//!
-//! let to_option: Option<i32> = Value::Found(42).into();
-//! assert_eq!(to_option, Some(42));
-//! ```
-//!
-//! # Conditional Checks
-//!
-//! ```
-//! use enumizer::alias_option;
-//! alias_option!(Value, Found, Searching);
-//! let val = Value::Found(42);
-//! assert!(val.is_found_and(|&x| x > 40));
-//! assert!(!val.is_found_and(|&x| x < 40));
-//! assert!(!Value::<i32>::Searching.is_found_and(|&x| x > 40));
-//!
-//! assert!(Value::<i32>::Searching.is_searching_or(|&x| x > 40));
-//! assert!(val.is_searching_or(|&x| x > 40));
-//! assert!(!val.is_searching_or(|&x| x < 40));
-//! ```
-
+/// Creates an Option-like enum with custom variant names.
+///
+/// # Example
+///
+/// ```
+/// use enumizer::alias_option;
+///
+/// alias_option!(Value, Found, Searching);
+///
+/// let searching: Value<i32> = Value::Searching;
+/// let found = Value::Found(42);
+///
+/// assert!(searching.is_searching());
+/// assert!(!searching.is_found());
+/// assert!(found.is_found());
+/// assert_eq!(found.as_found(), Some(&42));
+/// ```
+///
+/// # Generated Methods
+///
+/// ```
+/// use enumizer::alias_option;
+/// alias_option!(Value, Found, Searching);
+/// let mut val = Value::Found(10);
+///
+/// // Check variants
+/// assert!(val.is_found());
+///
+/// // Get references
+/// assert_eq!(val.as_found(), Some(&10));
+/// assert_eq!(val.as_found_mut(), Some(&mut 10));
+///
+/// // Transform
+/// let doubled = val.map(|x| x * 2);
+/// assert_eq!(doubled.unwrap(), 20);
+///
+/// // Unwrap variants
+/// assert_eq!(Value::Found(5).unwrap_or(0), 5);
+/// assert_eq!(Value::<i32>::Searching.unwrap_or(5), 5);
+/// ```
+///
+/// # Conversions
+///
+/// ```
+/// use enumizer::alias_option;
+/// alias_option!(Value, Found, Searching);
+/// let from_some: Value<i32> = Some(42).into();
+/// let from_none: Value<i32> = None.into();
+///
+/// assert_eq!(from_some, Value::Found(42));
+/// assert_eq!(from_none, Value::Searching);
+///
+/// let to_option: Option<i32> = Value::Found(42).into();
+/// assert_eq!(to_option, Some(42));
+/// ```
+///
+/// # Conditional Checks
+///
+/// ```
+/// use enumizer::alias_option;
+/// alias_option!(Value, Found, Searching);
+/// let val = Value::Found(42);
+/// assert!(val.is_found_and(|&x| x > 40));
+/// assert!(!val.is_found_and(|&x| x < 40));
+/// assert!(!Value::<i32>::Searching.is_found_and(|&x| x > 40));
+///
+/// assert!(Value::<i32>::Searching.is_searching_or(|&x| x > 40));
+/// assert!(val.is_searching_or(|&x| x > 40));
+/// assert!(!val.is_searching_or(|&x| x < 40));
+/// ```
 #[macro_export]
 macro_rules! alias_option {
     ($type_name:ident, $some_variant:ident, $none_variant:ident) => {

@@ -1,34 +1,34 @@
-//! Creates an Either-like enum with custom variant names.
-//!
-//! # Example
-//!
-//! ```
-//! use enumizer::alias_either;
-//!
-//! alias_either!(Choice, Primary, Secondary);
-//!
-//! let primary: Choice<i32, String> = Choice::Primary(42);
-//! let secondary: Choice<i32, String> = Choice::Secondary("text".to_string());
-//!
-//! assert!(primary.is_primary());
-//! assert!(secondary.is_secondary());
-//! assert_eq!(primary.as_primary(), Some(&42));
-//! ```
-//!
-//! # Generated Methods
-//!
-//! ```
-//! use enumizer::alias_either;
-//! alias_either!(Choice, Primary, Secondary);
-//! let mut val: Choice<i32, String> = Choice::Primary(10);
-//!
-//! assert!(val.is_primary());
-//! assert_eq!(val.as_primary(), Some(&10));
-//! assert_eq!(val.as_secondary(), None);
-//!
-//! let doubled = val.map_primary(|x| x * 2);
-//! assert_eq!(doubled.as_primary(), Some(&20));
-//! ```
+/// Creates an Either-like enum with custom variant names.
+///
+/// # Example
+///
+/// ```
+/// use enumizer::alias_either;
+///
+/// alias_either!(Choice, Primary, Secondary);
+///
+/// let primary: Choice<i32, String> = Choice::Primary(42);
+/// let secondary: Choice<i32, String> = Choice::Secondary("text".to_string());
+///
+/// assert!(primary.is_primary());
+/// assert!(secondary.is_secondary());
+/// assert_eq!(primary.as_primary(), Some(&42));
+/// ```
+///
+/// # Generated Methods
+///
+/// ```
+/// use enumizer::alias_either;
+/// alias_either!(Choice, Primary, Secondary);
+/// let mut val: Choice<i32, String> = Choice::Primary(10);
+///
+/// assert!(val.is_primary());
+/// assert_eq!(val.as_primary(), Some(&10));
+/// assert_eq!(val.as_secondary(), None);
+///
+/// let doubled = val.map_primary(|x| x * 2);
+/// assert_eq!(doubled.as_primary(), Some(&20));
+/// ```
 #[macro_export]
 macro_rules! alias_either {
     ($type_name:ident, $left_variant:ident, $right_variant:ident) => {
