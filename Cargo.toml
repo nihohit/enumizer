@@ -6,7 +6,7 @@ description = "simple macros for generating enums that are equivalent and conver
 license = "BSD-3-Clause"
 documentation = "https://docs.rs/enumizer/latest/enumizer"
 repository = "https://github.com/nihohit/enumizer"
-keywords = ["option", "result", "either", "enum", "code generation"]
+keywords = ["option", "result", "either", "enum"]
 
 [dependencies]
 paste = "1"
