@@ -1,5 +1,7 @@
 /// Creates an Option-like enum with custom variant names.
 ///
+/// See [`examples::OptionExample`](crate::examples::OptionExample) for a generated example.
+///
 /// # Example
 ///
 /// ```
@@ -41,6 +43,8 @@
 ///
 /// # Conversions
 ///
+/// The generated type can be easily converted to and from `Option<T>`.
+///
 /// ```
 /// use enumizer::alias_option;
 /// alias_option!(Value, Found, Searching);
@@ -79,14 +83,17 @@ macro_rules! alias_option {
 		}
 
 		impl<T> $type_name<T> {
+			/// Behaves like [`Option::is_none`](https://doc.rust-lang.org/std/option/enum.Option.html#method.is_none)
 			pub fn [<is_ $none_variant:lower>](&self) -> bool {
 				matches!(self, $type_name::$none_variant)
 			}
 
+			/// Behaves like [`Option::is_some`](https://doc.rust-lang.org/std/option/enum.Option.html#method.is_some)
 			pub fn [<is_ $some_variant:lower>](&self) -> bool {
 				matches!(self, $type_name::$some_variant(_))
 			}
 
+			/// Behaves like [`Option::is_some_and`](https://doc.rust-lang.org/std/option/enum.Option.html#method.is_some_and)
 			pub fn [<is_ $some_variant:lower _and>]<F: FnOnce(&T) -> bool>(&self, f: F) -> bool {
 				match self {
 					$type_name::$some_variant(v) => f(v),
@@ -94,6 +101,7 @@ macro_rules! alias_option {
 				}
 			}
 
+			/// Behaves like [`Option::is_none_or`](https://doc.rust-lang.org/std/option/enum.Option.html#method.is_none_or)
 			pub fn [<is_ $none_variant:lower _or>]<F: FnOnce(&T) -> bool>(&self, f: F) -> bool {
 				match self {
 					$type_name::$none_variant => true,
@@ -101,6 +109,7 @@ macro_rules! alias_option {
 				}
 			}
 
+			/// Behaves like [`Option::as_ref`](https://doc.rust-lang.org/std/option/enum.Option.html#method.as_ref)
 			pub fn [<as_ $some_variant:lower>](&self) -> Option<&T> {
 				match self {
 					$type_name::$some_variant(v) => Some(v),
@@ -108,6 +117,7 @@ macro_rules! alias_option {
 				}
 			}
 
+			/// Behaves like [`Option::as_mut`](https://doc.rust-lang.org/std/option/enum.Option.html#method.as_mut)
 			pub fn [<as_ $some_variant:lower _mut>](&mut self) -> Option<&mut T> {
 				match self {
 					$type_name::$some_variant(v) => Some(v),
@@ -115,6 +125,7 @@ macro_rules! alias_option {
 				}
 			}
 
+			/// Behaves like [`Option::map`](https://doc.rust-lang.org/std/option/enum.Option.html#method.map)
 			pub fn map<U, F: FnOnce(T) -> U>(self, f: F) -> $type_name<U> {
 				match self {
 					$type_name::$some_variant(v) => $type_name::$some_variant(f(v)),
@@ -122,6 +133,7 @@ macro_rules! alias_option {
 				}
 			}
 
+			/// Behaves like [`Option::unwrap`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap)
 			pub fn unwrap(self) -> T {
 				match self {
 					$type_name::$some_variant(v) => v,
@@ -131,6 +143,7 @@ macro_rules! alias_option {
 				}
 			}
 
+			/// Behaves like [`Option::unwrap_or`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or)
 			pub fn unwrap_or(self, default: T) -> T {
 				match self {
 					$type_name::$some_variant(v) => v,
@@ -138,6 +151,7 @@ macro_rules! alias_option {
 				}
 			}
 
+			/// Behaves like [`Option::unwrap_or_else`](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_or_else)
 			pub fn unwrap_or_else<F: FnOnce() -> T>(self, f: F) -> T {
 				match self {
 					$type_name::$some_variant(v) => v,

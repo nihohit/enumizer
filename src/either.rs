@@ -1,5 +1,7 @@
 /// Creates an Either-like enum with custom variant names.
 ///
+/// See [`examples::EitherExample`](crate::examples::EitherExample) for a generated example.
+///
 /// # Example
 ///
 /// ```
@@ -40,14 +42,17 @@ macro_rules! alias_either {
 		}
 
 		impl<L, R> $type_name<L, R> {
+			/// Returns true if this is the left variant
 			pub fn [<is_ $left_variant:lower>](&self) -> bool {
 				matches!(self, $type_name::$left_variant(_))
 			}
 
+			/// Returns true if this is the right variant
 			pub fn [<is_ $right_variant:lower>](&self) -> bool {
 				matches!(self, $type_name::$right_variant(_))
 			}
 
+			/// Returns a reference to the left value if this is the left variant
 			pub fn [<as_ $left_variant:lower>](&self) -> Option<&L> {
 				match self {
 					$type_name::$left_variant(v) => Some(v),
@@ -55,6 +60,7 @@ macro_rules! alias_either {
 				}
 			}
 
+			/// Returns a mutable reference to the left value if this is the left variant
 			pub fn [<as_ $left_variant:lower _mut>](&mut self) -> Option<&mut L> {
 				match self {
 					$type_name::$left_variant(v) => Some(v),
@@ -62,6 +68,7 @@ macro_rules! alias_either {
 				}
 			}
 
+			/// Returns a reference to the right value if this is the right variant
 			pub fn [<as_ $right_variant:lower>](&self) -> Option<&R> {
 				match self {
 					$type_name::$right_variant(v) => Some(v),
@@ -69,6 +76,7 @@ macro_rules! alias_either {
 				}
 			}
 
+			/// Returns a mutable reference to the right value if this is the right variant
 			pub fn [<as_ $right_variant:lower _mut>](&mut self) -> Option<&mut R> {
 				match self {
 					$type_name::$right_variant(v) => Some(v),
@@ -76,6 +84,7 @@ macro_rules! alias_either {
 				}
 			}
 
+			/// Maps the left value if this is the left variant
 			pub fn [<map_ $left_variant:lower>]<T, F: FnOnce(L) -> T>(self, f: F) -> $type_name<T, R> {
 				match self {
 					$type_name::$left_variant(v) => $type_name::$left_variant(f(v)),
@@ -83,6 +92,7 @@ macro_rules! alias_either {
 				}
 			}
 
+			/// Maps the right value if this is the right variant
 			pub fn [<map_ $right_variant:lower>]<T, F: FnOnce(R) -> T>(self, f: F) -> $type_name<L, T> {
 				match self {
 					$type_name::$left_variant(v) => $type_name::$left_variant(v),
@@ -90,6 +100,7 @@ macro_rules! alias_either {
 				}
 			}
 
+			/// Unwraps the left value, panicking if this is the right variant
 			pub fn [<unwrap_ $left_variant:lower>](self) -> L {
 				match self {
 					$type_name::$left_variant(v) => v,
@@ -99,6 +110,7 @@ macro_rules! alias_either {
 				}
 			}
 
+			/// Unwraps the right value, panicking if this is the left variant
 			pub fn [<unwrap_ $right_variant:lower>](self) -> R {
 				match self {
 					$type_name::$right_variant(v) => v,
