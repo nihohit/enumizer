@@ -4,6 +4,9 @@ version = "0.1.1"
 edition = "2024"
 description = "simple macros for generating enums that are equivalent and convertible to standard library enums"
 license = "BSD-3-Clause"
+documentation = "https://docs.rs/enumizer/latest/enumizer"
+repository = "https://github.com/nihohit/enumizer"
+keywords = ["option", "result", "either", "enum", "code generation"]
 
 [dependencies]
 paste = "1"
