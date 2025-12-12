@@ -1,49 +1,53 @@
-//! Creates a Result-like enum with custom variant names.
-//!
-//! # Example
-//!
-//! ```
-//! use enumizer::alias_result;
-//!
-//! alias_result!(Response, Success, Failure);
-//!
-//! let success: Response<i32, String> = Response::Success(42);
-//! let error: Response<i32, String> = Response::Failure("failed".to_string());
-//!
-//! assert!(success.is_success());
-//! assert!(error.is_failure());
-//! assert_eq!(success.as_success(), Some(&42));
-//! ```
-//!
-//! # Generated Methods
-//!
-//! ```
-//! use enumizer::alias_result;
-//! alias_result!(Response, Success, Failure);
-//! let mut val: Response<i32, String> = Response::Success(10);
-//!
-//! assert!(val.is_success());
-//! assert_eq!(val.as_success(), Some(&10));
-//! assert_eq!(val.as_failure(), None);
-//!
-//! let doubled = val.map(|x| x * 2);
-//! assert_eq!(doubled.unwrap(), 20);
-//! ```
-//!
-//! # Conversions
-//!
-//! ```
-//! use enumizer::alias_result;
-//! alias_result!(Response, Success, Failure);
-//! let from_ok: Response<i32, String> = Ok(42).into();
-//! let from_err: Response<i32, String> = Err("failed".to_string()).into();
-//!
-//! assert_eq!(from_ok, Response::Success(42));
-//! assert!(from_err.is_failure());
-//!
-//! let to_result: Result<i32, String> = Response::Success(42).into();
-//! assert_eq!(to_result, Ok(42));
-//! ```
+/// Creates a Result-like enum with custom variant names.
+///
+/// See [`examples::ResultExample`](crate::examples::ResultExample) for a generated example.
+///
+/// # Example
+///
+/// ```
+/// use enumizer::alias_result;
+///
+/// alias_result!(Response, Success, Failure);
+///
+/// let success: Response<i32, String> = Response::Success(42);
+/// let error: Response<i32, String> = Response::Failure("failed".to_string());
+///
+/// assert!(success.is_success());
+/// assert!(error.is_failure());
+/// assert_eq!(success.as_success(), Some(&42));
+/// ```
+///
+/// # Generated Methods
+///
+/// ```
+/// use enumizer::alias_result;
+/// alias_result!(Response, Success, Failure);
+/// let mut val: Response<i32, String> = Response::Success(10);
+///
+/// assert!(val.is_success());
+/// assert_eq!(val.as_success(), Some(&10));
+/// assert_eq!(val.as_failure(), None);
+///
+/// let doubled = val.map(|x| x * 2);
+/// assert_eq!(doubled.unwrap(), 20);
+/// ```
+///
+/// # Conversions
+///
+/// The generated type can be easily converted to and from `Result<T>`.
+///
+/// ```
+/// use enumizer::alias_result;
+/// alias_result!(Response, Success, Failure);
+/// let from_ok: Response<i32, String> = Ok(42).into();
+/// let from_err: Response<i32, String> = Err("failed".to_string()).into();
+///
+/// assert_eq!(from_ok, Response::Success(42));
+/// assert!(from_err.is_failure());
+///
+/// let to_result: Result<i32, String> = Response::Success(42).into();
+/// assert_eq!(to_result, Ok(42));
+/// ```
 #[macro_export]
 macro_rules! alias_result {
     ($type_name:ident, $ok_variant:ident, $err_variant:ident) => {
@@ -55,14 +59,17 @@ macro_rules! alias_result {
         }
 
         impl<T, E> $type_name<T, E> {
+            /// Behaves like [`Result::is_ok`](https://doc.rust-lang.org/std/result/enum.Result.html#method.is_ok)
             pub fn [<is_ $ok_variant:lower>](&self) -> bool {
                 matches!(self, $type_name::$ok_variant(_))
             }
 
+            /// Behaves like [`Result::is_err`](https://doc.rust-lang.org/std/result/enum.Result.html#method.is_err)
             pub fn [<is_ $err_variant:lower>](&self) -> bool {
                 matches!(self, $type_name::$err_variant(_))
             }
 
+            /// Behaves like [`Result::as_ref`](https://doc.rust-lang.org/std/result/enum.Result.html#method.as_ref) for the Ok variant
             pub fn [<as_ $ok_variant:lower>](&self) -> Option<&T> {
                 match self {
                     $type_name::$ok_variant(v) => Some(v),
@@ -70,6 +77,7 @@ macro_rules! alias_result {
                 }
             }
 
+            /// Behaves like [`Result::as_mut`](https://doc.rust-lang.org/std/result/enum.Result.html#method.as_mut) for the Ok variant
             pub fn [<as_ $ok_variant:lower _mut>](&mut self) -> Option<&mut T> {
                 match self {
                     $type_name::$ok_variant(v) => Some(v),
@@ -77,6 +85,7 @@ macro_rules! alias_result {
                 }
             }
 
+            /// Behaves like [`Result::as_ref`](https://doc.rust-lang.org/std/result/enum.Result.html#method.as_ref) for the Err variant
             pub fn [<as_ $err_variant:lower>](&self) -> Option<&E> {
                 match self {
                     $type_name::$err_variant(e) => Some(e),
@@ -84,6 +93,7 @@ macro_rules! alias_result {
                 }
             }
 
+            /// Behaves like [`Result::as_mut`](https://doc.rust-lang.org/std/result/enum.Result.html#method.as_mut) for the Err variant
             pub fn [<as_ $err_variant:lower _mut>](&mut self) -> Option<&mut E> {
                 match self {
                     $type_name::$err_variant(e) => Some(e),
@@ -91,6 +101,7 @@ macro_rules! alias_result {
                 }
             }
 
+            /// Behaves like [`Result::map`](https://doc.rust-lang.org/std/result/enum.Result.html#method.map)
             pub fn map<U, F: FnOnce(T) -> U>(self, f: F) -> $type_name<U, E> {
                 match self {
                     $type_name::$ok_variant(v) => $type_name::$ok_variant(f(v)),
@@ -98,6 +109,7 @@ macro_rules! alias_result {
                 }
             }
 
+            /// Behaves like [`Result::map_err`](https://doc.rust-lang.org/std/result/enum.Result.html#method.map_err)
             pub fn map_err<F, O: FnOnce(E) -> F>(self, op: O) -> $type_name<T, F> {
                 match self {
                     $type_name::$ok_variant(v) => $type_name::$ok_variant(v),
@@ -105,6 +117,7 @@ macro_rules! alias_result {
                 }
             }
 
+            /// Behaves like [`Result::unwrap`](https://doc.rust-lang.org/std/result/enum.Result.html#method.unwrap)
             pub fn unwrap(self) -> T {
                 match self {
                     $type_name::$ok_variant(v) => v,
@@ -114,6 +127,7 @@ macro_rules! alias_result {
                 }
             }
 
+            /// Behaves like [`Result::unwrap_or`](https://doc.rust-lang.org/std/result/enum.Result.html#method.unwrap_or)
             pub fn unwrap_or(self, default: T) -> T {
                 match self {
                     $type_name::$ok_variant(v) => v,
@@ -121,6 +135,7 @@ macro_rules! alias_result {
                 }
             }
 
+            /// Behaves like [`Result::unwrap_or_else`](https://doc.rust-lang.org/std/result/enum.Result.html#method.unwrap_or_else)
             pub fn unwrap_or_else<F: FnOnce(E) -> T>(self, op: F) -> T {
                 match self {
                     $type_name::$ok_variant(v) => v,
