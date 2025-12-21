@@ -87,6 +87,27 @@
 /// let json = serde_json::to_string(&val).unwrap();
 /// assert_eq!(json, r#"{"Present":42}"#);
 /// ```
+///
+/// # Try Trait Support (Nightly Only)
+///
+/// Add `implement_try` to enable the `?` operator for early returns.
+/// Requires nightly Rust with `#![feature(try_trait_v2)]`.
+///
+/// ```ignore
+/// #![feature(try_trait_v2)]
+/// use enumizer::alias_option;
+///
+/// alias_option!(Value, Found, Searching, implement_try);
+///
+/// fn try_example(val1: Value<i32>, val2: Value<i32>) -> Value<i32> {
+///     let x = val1?;
+///     let y = val2?;
+///     Value::Found(x + y)
+/// }
+///
+/// assert_eq!(try_example(Value::Found(10), Value::Found(20)), Value::Found(30));
+/// assert_eq!(try_example(Value::Searching, Value::Found(20)), Value::Searching);
+/// ```
 
 #[macro_export]
 macro_rules! alias_option {
@@ -96,7 +117,16 @@ macro_rules! alias_option {
     ($type_name:ident, $some_variant:ident, $none_variant:ident, traits: [$($trait:path),*]) => {
         $crate::alias_option!($type_name, $some_variant, $none_variant, [$($trait),*]);
     };
+    ($type_name:ident, $some_variant:ident, $none_variant:ident, implement_try) => {
+        $crate::alias_option!($type_name, $some_variant, $none_variant, [Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash], implement_try);
+    };
+    ($type_name:ident, $some_variant:ident, $none_variant:ident, traits: [$($trait:path),*], implement_try) => {
+        $crate::alias_option!($type_name, $some_variant, $none_variant, [$($trait),*], implement_try);
+    };
     ($type_name:ident, $some_variant:ident, $none_variant:ident, [$($trait:path),*]) => {
+        $crate::alias_option!($type_name, $some_variant, $none_variant, [$($trait),*], );
+    };
+    ($type_name:ident, $some_variant:ident, $none_variant:ident, [$($trait:path),*], $($implement_try:ident)?) => {
       paste::paste! {
 		#[derive($($trait),*)]
 		pub enum $type_name<T> {
@@ -199,9 +229,36 @@ macro_rules! alias_option {
 				}
 			}
 		}
+        }
+
+        $(
+            let _ = stringify!($implement_try);
+            paste::paste! {
+                impl<T> std::ops::Try for $type_name<T> {
+                    type Output = T;
+                    type Residual = $type_name<std::convert::Infallible>;
+
+                    fn from_output(output: Self::Output) -> Self {
+                        $type_name::$some_variant(output)
+                    }
+
+                    fn branch(self) -> std::ops::ControlFlow<Self::Residual, Self::Output> {
+                        match self {
+                            $type_name::$some_variant(v) => std::ops::ControlFlow::Continue(v),
+                            $type_name::$none_variant => std::ops::ControlFlow::Break($type_name::$none_variant),
+                        }
+                    }
+                }
+
+                impl<T> std::ops::FromResidual for $type_name<T> {
+                    fn from_residual(_: $type_name<std::convert::Infallible>) -> Self {
+                        $type_name::$none_variant
+                    }
+                }
+            }
+        )?
     }
-  };
-}
+  }
 
 #[cfg(test)]
 mod tests {
