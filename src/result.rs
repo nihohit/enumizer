@@ -49,6 +49,27 @@
 /// assert_eq!(to_result, Ok(42));
 /// ```
 ///
+/// # Try Trait Support (Nightly Only)
+///
+/// Add `implement_try` to enable the `?` operator for early returns.
+/// Requires nightly Rust with `#![feature(try_trait_v2)]`.
+///
+/// ```ignore
+/// #![feature(try_trait_v2)]
+/// use enumizer::alias_result;
+///
+/// alias_result!(Response, Success, Failure, implement_try);
+///
+/// fn try_example(res1: Response<i32, String>, res2: Response<i32, String>) -> Response<i32, String> {
+///     let x = res1?;
+///     let y = res2?;
+///     Response::Success(x * y)
+/// }
+///
+/// assert_eq!(try_example(Response::Success(5), Response::Success(15)), Response::Success(75));
+/// assert_eq!(try_example(Response::Failure("error".into()), Response::Success(15)), Response::Failure("error".into()));
+/// ```
+///
 /// # Custom Traits
 ///
 /// You can specify custom traits to derive instead of the default set.
@@ -71,7 +92,16 @@ macro_rules! alias_result {
     ($type_name:ident, $ok_variant:ident, $err_variant:ident, traits: [$($trait:path),*]) => {
         $crate::alias_result!($type_name, $ok_variant, $err_variant, [$($trait),*]);
     };
+    ($type_name:ident, $ok_variant:ident, $err_variant:ident, implement_try) => {
+        $crate::alias_result!($type_name, $ok_variant, $err_variant, [Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash], implement_try);
+    };
+    ($type_name:ident, $ok_variant:ident, $err_variant:ident, traits: [$($trait:path),*], implement_try) => {
+        $crate::alias_result!($type_name, $ok_variant, $err_variant, [$($trait),*], implement_try);
+    };
     ($type_name:ident, $ok_variant:ident, $err_variant:ident, [$($trait:path),*]) => {
+        $crate::alias_result!($type_name, $ok_variant, $err_variant, [$($trait),*], );
+    };
+    ($type_name:ident, $ok_variant:ident, $err_variant:ident, [$($trait:path),*], $($implement_try:ident)?) => {
         paste::paste! {
         #[derive($($trait),*)]
         pub enum $type_name<T, E> {
@@ -183,6 +213,36 @@ macro_rules! alias_result {
             }
         }
         }
+
+        $(
+            let _ = stringify!($implement_try);
+            paste::paste! {
+                impl<T, E> std::ops::Try for $type_name<T, E> {
+                    type Output = T;
+                    type Residual = $type_name<std::convert::Infallible, E>;
+
+                    fn from_output(output: Self::Output) -> Self {
+                        $type_name::$ok_variant(output)
+                    }
+
+                    fn branch(self) -> std::ops::ControlFlow<Self::Residual, Self::Output> {
+                        match self {
+                            $type_name::$ok_variant(v) => std::ops::ControlFlow::Continue(v),
+                            $type_name::$err_variant(e) => std::ops::ControlFlow::Break($type_name::$err_variant(e)),
+                        }
+                    }
+                }
+
+                impl<T, E> std::ops::FromResidual for $type_name<T, E> {
+                    fn from_residual(residual: $type_name<std::convert::Infallible, E>) -> Self {
+                        match residual {
+                            $type_name::$err_variant(e) => $type_name::$err_variant(e),
+                            _ => unreachable!(),
+                        }
+                    }
+                }
+            }
+        )?
     };
 }
 

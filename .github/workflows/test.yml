@@ -13,14 +13,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Rust Nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          override: true
+          override: true          
 
       - name: Run tests
         run: |
           cargo clippy --all-targets --all-features
           cargo fmt
           cargo test
+          cargo +nightly test
+          cargo +nightly test --doc -- --ignored
