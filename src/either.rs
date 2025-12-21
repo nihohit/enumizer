@@ -31,11 +31,32 @@
 /// let doubled = val.map_primary(|x| x * 2);
 /// assert_eq!(doubled.as_primary(), Some(&20));
 /// ```
+///
+/// # Custom Traits
+///
+/// You can specify custom traits to derive instead of the default set.
+/// Use the `traits:` keyword followed by a list of trait names in brackets.
+///
+/// ```
+/// use enumizer::alias_either;
+/// alias_either!(CustomEither, Left, Right, traits: [Debug, Clone, serde::Serialize, serde::Deserialize]);
+/// let val: CustomEither<i32, String> = CustomEither::Left(42);
+/// assert_eq!(format!("{:?}", val), "Left(42)");
+/// assert_eq!(val.clone().unwrap_left(), 42);
+/// let json = serde_json::to_string(&val).unwrap();
+/// assert_eq!(json, r#"{"Left":42}"#);
+/// ```
 #[macro_export]
 macro_rules! alias_either {
     ($type_name:ident, $left_variant:ident, $right_variant:ident) => {
+        $crate::alias_either!($type_name, $left_variant, $right_variant, [Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash]);
+    };
+    ($type_name:ident, $left_variant:ident, $right_variant:ident, traits: [$($trait:path),*]) => {
+        $crate::alias_either!($type_name, $left_variant, $right_variant, [$($trait),*]);
+    };
+    ($type_name:ident, $left_variant:ident, $right_variant:ident, [$($trait:path),*]) => {
         paste::paste! {
-		#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
+		#[derive($($trait),*)]
 		pub enum $type_name<L, R> {
 			$left_variant(L),
 			$right_variant(R),

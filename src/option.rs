@@ -72,11 +72,33 @@
 /// assert!(val.is_searching_or(|&x| x > 40));
 /// assert!(!val.is_searching_or(|&x| x < 40));
 /// ```
+///
+/// # Custom Traits
+///
+/// You can specify custom traits to derive instead of the default set.
+/// Use the `traits:` keyword followed by a list of trait names in brackets.
+///
+/// ```
+/// use enumizer::alias_option;
+/// alias_option!(CustomOption, Present, Absent, traits: [Debug, Clone, serde::Serialize, serde::Deserialize]);
+/// let val = CustomOption::Present(42);
+/// assert_eq!(format!("{:?}", val), "Present(42)");
+/// assert_eq!(val.clone().unwrap(), 42);
+/// let json = serde_json::to_string(&val).unwrap();
+/// assert_eq!(json, r#"{"Present":42}"#);
+/// ```
+
 #[macro_export]
 macro_rules! alias_option {
     ($type_name:ident, $some_variant:ident, $none_variant:ident) => {
+        $crate::alias_option!($type_name, $some_variant, $none_variant, [Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash]);
+    };
+    ($type_name:ident, $some_variant:ident, $none_variant:ident, traits: [$($trait:path),*]) => {
+        $crate::alias_option!($type_name, $some_variant, $none_variant, [$($trait),*]);
+    };
+    ($type_name:ident, $some_variant:ident, $none_variant:ident, [$($trait:path),*]) => {
       paste::paste! {
-		#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
+		#[derive($($trait),*)]
 		pub enum $type_name<T> {
 			$none_variant,
 			$some_variant(T),
