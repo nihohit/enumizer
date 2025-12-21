@@ -48,11 +48,32 @@
 /// let to_result: Result<i32, String> = Response::Success(42).into();
 /// assert_eq!(to_result, Ok(42));
 /// ```
+///
+/// # Custom Traits
+///
+/// You can specify custom traits to derive instead of the default set.
+/// Use the `traits:` keyword followed by a list of trait names in brackets.
+///
+/// ```
+/// use enumizer::alias_result;
+/// alias_result!(CustomResult, Ok, Err, traits: [Debug, Clone, serde::Serialize, serde::Deserialize]);
+/// let val: CustomResult<i32, String> = CustomResult::Ok(42);
+/// assert_eq!(format!("{:?}", val), "Ok(42)");
+/// assert_eq!(val.clone().unwrap(), 42);
+/// let json = serde_json::to_string(&val).unwrap();
+/// assert_eq!(json, r#"{"Ok":42}"#);
+/// ```
 #[macro_export]
 macro_rules! alias_result {
     ($type_name:ident, $ok_variant:ident, $err_variant:ident) => {
+        $crate::alias_result!($type_name, $ok_variant, $err_variant, [Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash]);
+    };
+    ($type_name:ident, $ok_variant:ident, $err_variant:ident, traits: [$($trait:path),*]) => {
+        $crate::alias_result!($type_name, $ok_variant, $err_variant, [$($trait),*]);
+    };
+    ($type_name:ident, $ok_variant:ident, $err_variant:ident, [$($trait:path),*]) => {
         paste::paste! {
-        #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Hash)]
+        #[derive($($trait),*)]
         pub enum $type_name<T, E> {
             $ok_variant(T),
             $err_variant(E),
